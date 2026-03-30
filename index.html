@@ -1,67 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bio</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      background: #f4f4f9; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      margin: 0; 
+    }
+    header { 
+      width: 100%; 
+      padding: 20px 0; 
+      background: #fff; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    }
+    nav { 
+      display: flex; 
+      justify-content: center; 
+      gap: 10px; }
+    button {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #6e8efb, #c30909);
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.4s;
+    }
+    button:hover { 
+      transform: scale(1.05); 
+    }
+    main { 
+      padding: 40px; 
+    }
+    .page { 
+      display: none; 
+      text-align: center; 
+      max-width: 500px; 
+    }
+    .page.show { 
+      display: block; 
+    }
+    .bio-card { 
+      background: white; 
+      padding: 20px; 
+      border-radius: 15px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+    }
+    .bio-card img { 
+      width: 100px; 
+      border-radius: 50%; 
+      border: 3px solid #6e8efb; 
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
-<style> 
-    @import url('https://googleapis.com');
-
-body {
-  background: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-}
-.resume-card {
-  background: white;
-  width: 400px;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-
-} 
-.header h1 {
-  margin: 0;
-  font-size: 24px;
-  color: #1a1a1a;
-}
-.badge {
-  display: inline-block;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 50px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 8px;
-  text-transform: uppercase;
-}
-.description {
-  color: #4b5563;
-  line-height: 1.6;
-  font-size: 15px;
-  margin: 20px 0;
-}
-.description b {
-  color: #6366f1;
-  font-weight: 600;
-}
-</style>
 <body>
- <div class="resume-card">
-  <div class="header">
-    <h1>8enjamin3orderline</h1>
-    <span class="badge">Frontend-разработчик</span>
+<header>
+  <nav>
+    <button data-group=".page" data-target="page-1">Главная</button>
+    <button data-group=".page" data-target="page-2">Мои знания</button>
+    <button data-group=".page" data-target="page-3">Обо мне</button>
+  </nav>
+</header>
+<main>
+  <div class="page show" id="page-1">
+    <h1>Добро пожаловать</h1>
+    <p>Frontend-разработчик. Создаю современные интерфейсы.</p>
   </div>
-  <p class="description">
-    Frontend-разработчик со знанием <b>HTML</b>, <b>CSS</b> и <b>JavaScript</b>. Имею опыт создания интерфейсов. Готов к быстрому обучению в команде и решению сложных интерфейсных задач.
-  </p>
+  <div class="page" id="page-2">
+    <input type="text" placeholder="Технология...">
+    <button style="padding: 8px 15px;">Send</button>
   </div>
-</div>
+
+  <div class="page" id="page-3">
+    <div id="api-data" class="bio-card">Загрузка данных...</div>
+  </div>
+</main>
+<script>
+  document.querySelectorAll('button[data-group]').forEach(button => {
+    button.onclick = event => {
+      const targetId = event.currentTarget.dataset.target;
+      document.querySelectorAll(event.currentTarget.dataset.group).forEach(el => {
+        el.classList.toggle('show', el.id === targetId);
+      });
+
+      if (targetId === 'page-3') {  
+        fetchGitHub('100reasons'); 
+      }
+    };
+  });
+  async function fetchGitHub(username) {
+    const container = document.getElementById('api-data');
+    container.innerHTML = "Загрузка...";
+    
+    try {
+      const response = await fetch(`https://github.com{username}`);
+      if (response.status === 403) {
+        throw new Error('LIMIT_EXCEEDED');
+      }
+      if (!response.ok) throw new Error('NOT_FOUND');
+      const data = await response.json();
+      container.innerHTML = `
+        <img src="${data.avatar_url}" style="width:100px; border-radius:50%">
+        <h2>${data.name || username}</h2>
+        <p>${data.bio || "Frontend Developer"}</p>
+      `;
+    } catch (e) {
+      if (e.message === 'LIMIT_EXCEEDED') {
+        container.innerHTML = "<b>Превышен лимит GitHub!</b><br>Загружаю тестовые данные...";
+        // Запасной вариант, который сработает ВСЕГДА
+        setTimeout(() => fetchBackupData(), 1500);
+      } else {
+        container.innerHTML = "Пользователь не найден.";
+      }
+    }
+  }
+  async function fetchBackupData() {
+    const container = document.getElementById('api-data');
+    const res = await fetch('https://typicode.com');
+    const user = await res.json();
+    container.innerHTML = `
+      <div style="border: 2px dashed #6e8efb; padding: 10px; border-radius: 10px;">
+        <p><i>(Резервный API)</i></p>
+        <h2>${user.name}</h2>
+        <p>Email: ${user.email}</p>
+      </div>`;
+  }
+</script>
+
+
 </body>
 </html>
