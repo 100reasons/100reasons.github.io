@@ -1,67 +1,194 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bio</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      background: #f4f4f9; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      margin: 0; 
+    }
+    header { 
+      width: 100%; 
+      padding: 20px 0; 
+      background: #fff; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    }
+    nav { 
+      display: flex; 
+      justify-content: center; 
+      gap: 10px; }
+    button {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 50px;
+      background: pink;
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.4s;
+    }
+    button:hover { 
+      transform: scale(1.05); 
+    }
+    main { 
+      padding: 40px; 
+    }
+    .page { 
+      display: none; 
+      text-align: center; 
+      max-width: 500px; 
+    }
+    .page.show { 
+      display: block; 
+    }
+    .bio-card { 
+      background: white; 
+      padding: 20px; 
+      border-radius: 15px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .bio-card img { 
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 50%; 
+      border: 3px solid #6e8efb; 
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
-<style> 
-    @import url('https://googleapis.com');
-
-body {
-  background: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-}
-.resume-card {
-  background: white;
-  width: 400px;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-
-} 
-.header h1 {
-  margin: 0;
-  font-size: 24px;
-  color: #1a1a1a;
-}
-.badge {
-  display: inline-block;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 50px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 8px;
-  text-transform: uppercase;
-}
-.description {
-  color: #4b5563;
-  line-height: 1.6;
-  font-size: 15px;
-  margin: 20px 0;
-}
-.description b {
-  color: #6366f1;
-  font-weight: 600;
-}
-</style>
 <body>
- <div class="resume-card">
-  <div class="header">
-    <h1>8enjamin3orderline</h1>
-    <span class="badge">Frontend-разработчик</span>
+<header>
+  <nav>
+    <button data-group=".page" data-target="page-1">Главная</button>
+    <button data-group=".page" data-target="page-2">Мои знания</button>
+    <button data-group=".page" data-target="page-3">Обо мне</button>
+  </nav>
+</header>
+<main>
+  <div class="page show" id="page-1">
+    <h1>Добро пожаловать</h1>
+    <p>Frontend-разработчик. Создаю современные интерфейсы.</p>
   </div>
-  <p class="description">
-    Frontend-разработчик со знанием <b>HTML</b>, <b>CSS</b> и <b>JavaScript</b>. Имею опыт создания интерфейсов. Готов к быстрому обучению в команде и решению сложных интерфейсных задач.
-  </p>
+  <div class="page" id="page-2">
+  <div class="bio-card">
+    <h3>Мой стек технологий</h3>
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <input type="text" id="tech-input" placeholder="Например: React..." style="padding: 10px; border-radius: 20px; border: 1px solid #ddd; outline: none; flex-grow: 1;">
+      <button id="add-tech-btn" style="padding: 8px 20px;">Добавить</button>
+    </div>
+    <div id="tech-list" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+    </div>
   </div>
 </div>
+
+  <div class="page" id="page-3">
+    <div id="api-data" class="bio-card">Загрузка данных...</div>
+  </div>
+</main>
+
+<script>
+// 1. Логика переключения страниц
+const buttons = document.querySelectorAll('nav button');
+const pages = document.querySelectorAll('.page');
+
+buttons.forEach(button => {
+  button.addEventListener('click', () => {
+    const targetId = button.getAttribute('data-target');
+    pages.forEach(page => page.classList.remove('show'));
+    document.getElementById(targetId).classList.add('show');
+    
+    if (targetId === 'page-3') {
+      loadRandomEmoji();
+    }
+  });
+});
+
+// 2. Интеграция EmojiHub API
+const apiDataContainer = document.getElementById('api-data');
+
+function loadRandomEmoji() {
+  apiDataContainer.innerHTML = 'Загрузка эмодзи...';
+  
+  fetch('https://emojihub.yurace.pro/api/random')
+    .then(response => {
+      if (!response.ok) throw new Error('Ошибка сервера');
+      return response.json();
+    })
+    .then(data => {
+      // Собираем HTML-коды эмодзи в одну строку
+      const emojiIcon = data.htmlCode.join('');
+      
+      apiDataContainer.innerHTML = `
+        <div style="font-size: 50px; margin-bottom: 10px;">${emojiIcon}</div>
+        <h3>Ваш эмодзи на сегодня:</h3>
+        <p><strong>Имя:</strong> ${data.name}</p>
+        <p><strong>Категория:</strong> ${data.category}</p>
+        <button style="padding: 8px 15px; margin-top: 10px;" onclick="loadRandomEmoji()">Обновить</button>
+      `;
+    })
+    .catch(error => {
+      console.error('Ошибка:', error);
+      apiDataContainer.innerHTML = `
+        <p style="color: red;">Не удалось загрузить эмодзи.</p>
+        <button onclick="loadRandomEmoji()">Попробовать снова</button>
+      `;
+    });
+}
+
+const techInput = document.getElementById('tech-input');
+const addTechBtn = document.getElementById('add-tech-btn');
+const techList = document.getElementById('tech-list');
+
+// Начальный список навыков
+let skills = ['HTML', 'CSS', 'JavaScript', 'Git'];
+
+// Функция для отрисовки списка
+function renderSkills() {
+  techList.innerHTML = '';
+  skills.forEach((skill, index) => {
+    const span = document.createElement('span');
+    span.className = 'tech-badge';
+    span.textContent = skill;
+    span.title = 'Нажми, чтобы удалить';
+    // Удаление по клику
+    span.onclick = () => {
+      skills.splice(index, 1);
+      renderSkills();
+    };
+    techList.appendChild(span);
+  });
+}
+
+// Добавление нового навыка
+addTechBtn.onclick = () => {
+  const newTech = techInput.value.trim();
+  if (newTech && !skills.includes(newTech)) {
+    skills.push(newTech);
+    techInput.value = '';
+    renderSkills();
+  }
+};
+
+// Позволяем добавлять по нажатию Enter
+techInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') addTechBtn.onclick();
+});
+
+// Запускаем отрисовку при загрузке
+renderSkills();
+
+</script>
+
 </body>
 </html>
