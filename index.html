@@ -98,7 +98,6 @@
 </main>
 
 <script>
-// 1. Логика переключения страниц
 const buttons = document.querySelectorAll('nav button');
 const pages = document.querySelectorAll('.page');
 
@@ -113,13 +112,9 @@ buttons.forEach(button => {
     }
   });
 });
-
-// 2. Интеграция EmojiHub API
 const apiDataContainer = document.getElementById('api-data');
-
 function loadRandomEmoji() {
   apiDataContainer.innerHTML = 'Загрузка эмодзи...';
-  
   fetch('https://emojihub.yurace.pro/api/random')
     .then(response => {
       if (!response.ok) throw new Error('Ошибка сервера');
@@ -145,15 +140,11 @@ function loadRandomEmoji() {
       `;
     });
 }
-
 const techInput = document.getElementById('tech-input');
 const addTechBtn = document.getElementById('add-tech-btn');
 const techList = document.getElementById('tech-list');
-
-// Начальный список навыков
 let skills = ['HTML', 'CSS', 'JavaScript', 'Git'];
-
-// Функция для отрисовки списка
+  
 function renderSkills() {
   techList.innerHTML = '';
   skills.forEach((skill, index) => {
@@ -170,7 +161,6 @@ function renderSkills() {
   });
 }
 
-// Добавление нового навыка
 addTechBtn.onclick = () => {
   const newTech = techInput.value.trim();
   if (newTech && !skills.includes(newTech)) {
@@ -180,15 +170,12 @@ addTechBtn.onclick = () => {
   }
 };
 
-// Позволяем добавлять по нажатию Enter
 techInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') addTechBtn.onclick();
 });
 
-// Запускаем отрисовку при загрузке
 renderSkills();
 
 </script>
-
 </body>
 </html>
